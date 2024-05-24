@@ -1,5 +1,5 @@
-import { Component, HostBinding, OnInit } from '@angular/core';
-
+import { Component, HostBinding, OnInit  } from '@angular/core';
+import {HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-private-chat',
   templateUrl: './private-chat.component.html',
