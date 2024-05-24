@@ -57,7 +57,9 @@ export class AuthService implements OnDestroy {
         if (authResponse && authResponse.token) {
           this.setAuthFromLocalStorage(authResponse);
           this.currentUserValue = this.parseToken(authResponse.token);
+          
         }
+
         return authResponse;
       }),
       catchError(error => {

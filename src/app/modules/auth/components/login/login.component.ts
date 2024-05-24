@@ -30,11 +30,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.isLoading$ = this.authService.isLoading$;
-    if (this.authService.currentUserValue) {
-      console.log("User is already connected")
-      this.router.navigateByUrl('/apps/chat');
-    }
-    console.log("User is not already connected")
+    this.checkIfUserIsAlreadyLoggedIn();
   }
 
   ngOnInit(): void {
@@ -90,7 +86,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             localStorage.setItem('refreshToken', auth.refreshToken);
             localStorage.setItem('id',user.id.toString());
             console.log("Tokens stored in localStorage:", localStorage);
-            
+
             console.log("Tokens stored, navigating to returnUrl:", this.returnUrl);
             this.router.navigateByUrl(this.returnUrl).then(success => {
               if (success) {
@@ -111,6 +107,19 @@ export class LoginComponent implements OnInit, OnDestroy {
       });
     this.unsubscribe.push(loginSubscr);
   }
+
+
+  private checkIfUserIsAlreadyLoggedIn(): void {
+    this.authService.currentUser$.pipe(first()).subscribe(user => {
+      if (user) {
+        console.log("User is already connected");
+        this.router.navigateByUrl('/apps/chat');
+      } else {
+        console.log("User is not already connected");
+      }
+    });
+  }
+
 
   ngOnDestroy() {
     this.unsubscribe.forEach((sb) => sb.unsubscribe());
