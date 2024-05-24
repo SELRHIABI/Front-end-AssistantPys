@@ -50,6 +50,7 @@ export class AuthService implements OnDestroy {
 
   // public methods
   login(email: string, password: string): Observable<AuthentificationResponse> {
+    console.log("Im in the login service")
     return this.http.post<AuthentificationResponse>(`${this.baseUrl}/authenticate`, { email, password });
   }
 

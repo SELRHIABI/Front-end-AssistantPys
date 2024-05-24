@@ -9,9 +9,9 @@ export class AuthentificationResponse extends AuthModel {
     this.id = 0;
   }
 
-  setAuthResponse(_user: unknown) {
-    const response = _user as AuthentificationResponse;
+  setAuthResponse(response: AuthentificationResponse) {
     this.id = response.id;
+    this.setAuth(response);
   }
 
 }

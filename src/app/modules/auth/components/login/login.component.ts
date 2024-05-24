@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { AuthModel } from '../../models/auth.model';
+import { AuthentificationResponse } from '../../models/AuthentificationResponse.model';
 import { UserModel } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,8 +15,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class LoginComponent implements OnInit, OnDestroy {
   // KeenThemes mock, change it to:
   defaultAuth: any = {
-    email: 'admin@demo.com',
-    password: 'demo',
+    email: 'sou@gmail.com',
+    password: 'securePassword123',
   };
   loginForm: FormGroup;
   hasError: boolean;
@@ -78,10 +78,16 @@ export class LoginComponent implements OnInit, OnDestroy {
     const loginSubscr = this.authService
       .login(this.f.email.value, this.f.password.value)
       .pipe(first())
-      .subscribe((user: AuthModel  | undefined) => {
-        if (user) {
-          this.router.navigate([this.returnUrl]);
-        } else {
+      .subscribe({
+        next: (user: AuthentificationResponse) => {
+          if (user) {
+            // Handle the user authentication here, e.g., save the tokens, etc.
+            this.router.navigate([this.returnUrl]);
+          } else {
+            this.hasError = true;
+          }
+        },
+        error: () => {
           this.hasError = true;
         }
       });
