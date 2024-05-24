@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { AuthentificationResponse } from '../../models/AuthentificationResponse.model';
-import { UserModel } from '../../models/user.model';
+import { AuthModel } from '../../models/auth.model';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -13,18 +13,15 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  // KeenThemes mock, change it to:
   defaultAuth: any = {
     email: 'sou@gmail.com',
     password: 'securePassword123',
   };
   loginForm: FormGroup;
-  hasError: boolean;
+  hasError = false;
   returnUrl: string;
   isLoading$: Observable<boolean>;
-
-  // private fields
-  private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
+  private unsubscribe: Subscription[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -33,7 +30,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.isLoading$ = this.authService.isLoading$;
-    // redirect to home if already logged in
     if (this.authService.currentUserValue) {
       this.router.navigate(['/']);
     }
@@ -41,12 +37,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForm();
-    // get return url from route parameters or default to '/'
-    this.returnUrl =
-      this.route.snapshot.queryParams['apps/chat/private-chat'.toString()] || '/';
+    // get return url from route parameters or default to '/apps/chat/private-chat'
+    this.returnUrl = '/apps/chat/private-chat';
+    console.log("Return URL:", this.returnUrl); // Log returnUrl
   }
 
-  // convenience getter for easy access to form fields
   get f() {
     return this.loginForm.controls;
   }
@@ -59,7 +54,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.email,
           Validators.minLength(3),
-          Validators.maxLength(320), // https://stackoverflow.com/questions/386294/what-is-the-maximum-length-of-a-valid-email-address
+          Validators.maxLength(320),
         ]),
       ],
       password: [
@@ -75,20 +70,40 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   submit() {
     this.hasError = false;
+    console.log("Submitting login form with:", this.f.email.value, this.f.password.value);
     const loginSubscr = this.authService
       .login(this.f.email.value, this.f.password.value)
       .pipe(first())
       .subscribe({
         next: (user: AuthentificationResponse) => {
+          console.log("Login response received:", user);
           if (user) {
-            // Handle the user authentication here, e.g., save the tokens, etc.
-            this.router.navigate([this.returnUrl]);
+            console.log("Authenticated user:", user);
+            const auth = new AuthModel();
+            auth.authToken = user.token;
+            console.log("Token in AuthModel:", auth.authToken);
+
+            localStorage.setItem('authToken', auth.authToken);
+            localStorage.setItem('refreshToken', auth.refreshToken);
+            localStorage.setItem('id',user.id.toString());
+            console.log("Tokens stored in localStorage:", localStorage);
+
+            console.log("Tokens stored, navigating to returnUrl:", this.returnUrl);
+            this.router.navigate([this.returnUrl]).then(success => {
+              if (success) {
+                console.log("Navigation successful");
+              } else {
+                console.error("Navigation failed");
+              }
+            });
           } else {
             this.hasError = true;
+            console.log("No user received in response.");
           }
         },
-        error: () => {
+        error: (error) => {
           this.hasError = true;
+          console.error("Error during login request:", error);
         }
       });
     this.unsubscribe.push(loginSubscr);
