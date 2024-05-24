@@ -1,17 +1,17 @@
 import { AuthModel } from './auth.model';
 
 export class AuthentificationResponse extends AuthModel {
-
-  id?: number;
+  id: number;
+  token: string; // Assuming response has a token field
 
   constructor() {
     super();
     this.id = 0;
+    this.token = '';
   }
 
-  setAuthResponse(_user: unknown) {
-    const response = _user as AuthentificationResponse;
+  setAuthResponse(response: any) {
     this.id = response.id;
+    this.authToken = response.token; // Mapping the token to authToken
   }
-
 }
