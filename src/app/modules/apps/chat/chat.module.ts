@@ -11,6 +11,26 @@ import {
   ChatInnerModule,
   CardsModule,
 } from '../../../_metronic/partials';
+import { RouterModule, Routes } from '@angular/router';
+import { Routing } from 'src/app/pages/routing';
+
+
+const routes: Routes = [
+  {
+    path: '',
+    component: ChatComponent,
+    children: [
+      {
+        path: 'private-chat',
+        component: PrivateChatComponent,
+      },
+      { path: '', redirectTo: 'private-chat', pathMatch: 'full' },
+      { path: '**', redirectTo: 'private-chat', pathMatch: 'full' },
+    ],
+  },
+];
+
+
 
 @NgModule({
   declarations: [
@@ -19,12 +39,17 @@ import {
     
   ],
   imports: [
+    RouterModule.forChild(routes),
     CommonModule,
     ChatRoutingModule,
     DropdownMenusModule,
     ChatInnerModule,
     CardsModule,
     InlineSVGModule,
+    
   ],
+  
+
+  exports: [RouterModule],
 })
 export class ChatModule {}

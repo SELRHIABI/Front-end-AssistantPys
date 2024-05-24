@@ -22,7 +22,7 @@ const Routing: Routes = [
   },
   {
     path: '',
-    redirectTo: '/apps/chat/private-chat',
+    redirectTo: 'apps/chat/private-chat',
     pathMatch: 'full',
   },
   {

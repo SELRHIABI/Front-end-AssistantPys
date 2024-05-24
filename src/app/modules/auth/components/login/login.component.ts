@@ -31,14 +31,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {
     this.isLoading$ = this.authService.isLoading$;
     if (this.authService.currentUserValue) {
-      this.router.navigate(['/']);
+      console.log("User is already connected")
+      this.router.navigateByUrl('/apps/chat');
     }
+    console.log("User is not already connected")
   }
 
   ngOnInit(): void {
     this.initForm();
+    console.log("router:",this.route)
     // get return url from route parameters or default to '/apps/chat/private-chat'
-    this.returnUrl = '/apps/chat/private-chat';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/apps/chat';
     console.log("Return URL:", this.returnUrl); // Log returnUrl
   }
 
@@ -87,9 +90,9 @@ export class LoginComponent implements OnInit, OnDestroy {
             localStorage.setItem('refreshToken', auth.refreshToken);
             localStorage.setItem('id',user.id.toString());
             console.log("Tokens stored in localStorage:", localStorage);
-
+            
             console.log("Tokens stored, navigating to returnUrl:", this.returnUrl);
-            this.router.navigate([this.returnUrl]).then(success => {
+            this.router.navigateByUrl(this.returnUrl).then(success => {
               if (success) {
                 console.log("Navigation successful");
               } else {

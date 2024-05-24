@@ -46,13 +46,33 @@ export class AuthService implements OnDestroy {
     this.isLoading$ = this.isLoadingSubject.asObservable();
     const subscr = this.getUserByToken().subscribe();
     this.unsubscribe.push(subscr);
+    
   }
 
   // public methods
   login(email: string, password: string): Observable<AuthentificationResponse> {
-    console.log("Im in the login service")
-    return this.http.post<AuthentificationResponse>(`${this.baseUrl}/authenticate`, { email, password });
+    console.log("Im in the login service");
+    return this.http.post<AuthentificationResponse>(`${this.baseUrl}/authenticate`, { email, password }).pipe(
+      map((authResponse: AuthentificationResponse) => {
+        if (authResponse && authResponse.token) {
+          this.setAuthFromLocalStorage(authResponse);
+          this.currentUserValue = this.parseToken(authResponse.token);
+        }
+        return authResponse;
+      }),
+      catchError(error => {
+        console.error('Login error:', error);
+        throw error;
+      })
+    );
   }
+
+  private parseToken(token: string): UserModel {
+    const decodedToken = atob(token.split('.')[1]);
+    const user: UserModel = JSON.parse(decodedToken);
+    return user;
+  }
+
 
   logout() {
     localStorage.removeItem(this.authLocalStorageToken);
@@ -113,6 +133,7 @@ export class AuthService implements OnDestroy {
       }
 
       const authData = JSON.parse(lsValue);
+      console.log("here is the stored token in local storage ", authData)
       return authData;
     } catch (error) {
       console.error(error);
