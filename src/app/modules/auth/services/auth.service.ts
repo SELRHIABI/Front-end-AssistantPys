@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, BehaviorSubject, of, Subscription } from 'rxjs';
 import { map, catchError, switchMap, finalize } from 'rxjs/operators';
 import { UserModel } from '../models/user.model';
-import { AuthModel } from '../models/auth.model';
+import { AuthentificationResponse } from '../models/AuthentificationResponse.model';
 import { AuthHTTPService } from './auth-http';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
@@ -49,8 +49,8 @@ export class AuthService implements OnDestroy {
   }
 
   // public methods
-  login(email: string, password: string): Observable<AuthModel> {
-    return this.http.post<AuthModel>(`${this.baseUrl}/authenticate`, { email, password });
+  login(email: string, password: string): Observable<AuthentificationResponse> {
+    return this.http.post<AuthentificationResponse>(`${this.baseUrl}/authenticate`, { email, password });
   }
 
   logout() {
@@ -95,7 +95,7 @@ export class AuthService implements OnDestroy {
   }
 
   // private methods
-  private setAuthFromLocalStorage(auth: AuthModel): boolean {
+  private setAuthFromLocalStorage(auth: AuthentificationResponse): boolean {
     // store auth authToken/refreshToken/epiresIn in local storage to keep user logged in between page refreshes
     if (auth && auth.authToken) {
       localStorage.setItem(this.authLocalStorageToken, JSON.stringify(auth));
@@ -104,7 +104,7 @@ export class AuthService implements OnDestroy {
     return false;
   }
 
-  private getAuthFromLocalStorage(): AuthModel | undefined {
+  private getAuthFromLocalStorage(): AuthentificationResponse | undefined {
     try {
       const lsValue = localStorage.getItem(this.authLocalStorageToken);
       if (!lsValue) {
