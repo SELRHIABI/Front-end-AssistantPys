@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostBinding, OnInit, Output  } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, HostBinding, OnInit, Output  } from '@angular/core';
 import {HttpClient } from '@angular/common/http';
 import { IChatMessage } from './private-chat';
 import { ThreadChatDataService } from 'services/thread-chat-data.service';
@@ -25,21 +25,22 @@ export class PrivateChatComponent implements OnInit {
   selectedThreadId: string;
   threadSubscription: Subscription;
   
-  constructor(private threadchatdata: ThreadChatDataService,private sharedService:SharedService) {
+  constructor(private threadchatdata: ThreadChatDataService,private sharedService:SharedService, private cdr: ChangeDetectorRef) {
     this.getData();
   }
 
   ngOnInit(): void {
     this.getData();
+
   }
 
 
   getData(){
-    
 
     this.threadchatdata.getData().subscribe((data: IChatMessage) => {
-
       this.data = data;
+      this.cdr.detectChanges();
+
     });
   }
   selectItem(item: any) {
@@ -53,5 +54,21 @@ export class PrivateChatComponent implements OnInit {
     // Use the shared service to notify about the selected thread
     this.sharedService.selectThread(selectedThread);
   }
+  onCreateThread(): void {
+    this.threadchatdata.createThread().subscribe(
+      response => {
+        console.log('Thread created successfully', response);
+        // Mettez à jour les données ici si nécessaire, par exemple :
+        this.getData();
+      },
+      error => {
+        console.error('Error creating thread', error);
+      }
+    );
+  }
+
+
+
+
 
 }
