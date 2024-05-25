@@ -35,6 +35,7 @@ export class PrivateChatComponent implements OnInit {
 
 
   getData(){
+    
 
     this.threadchatdata.getData().subscribe((data: IChatMessage) => {
 

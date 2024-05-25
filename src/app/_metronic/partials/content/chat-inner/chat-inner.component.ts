@@ -136,6 +136,7 @@ export class ChatInnerComponent implements OnInit, OnDestroy {
         message:'',
         response: 'Thank you for your awesome support!',
 
+
       });
     }, 4000);
 
