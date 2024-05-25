@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { IMessage } from 'src/app/_metronic/partials/content/chat-inner/message';
+import { MessageReturn } from 'src/app/_metronic/partials/content/chat-inner/messageReturn.model';
 
 interface MessageModel {
   id: number;
@@ -15,19 +16,23 @@ interface MessageModel {
   template?: boolean;
 }
 
-interface MessageModel {
-  user: number;
-  type: 'in' | 'out';
-  text: string;
-  time: string; // Update the type to Date
-}
+// interface MessageModel {
+//   user: number;
+//   type: 'in' | 'out';
+//   text: string;
+//   time: string; // Update the type to Date
+// }
+
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private apiUrl = 'http://localhost:8081/api/v1/Chat'; // Update with your API URL
-  idThread: string = 'thread_SIPAWXKEF6KQaoKNU7MrfZxg';
+  private apiChat = 'http://localhost:8081/api/v1/Chat'; // Update with your API URL
+  private apiAssistant = 'http://localhost:8081/api/v1/assistante'; // Update with your API URL
+
+  idThread: string = 'thread_cvz4gWLWb7S5UWqspyi4sB4G';
 
   constructor(private http: HttpClient) {}
 
@@ -46,10 +51,12 @@ export class ChatService {
   // }
 
   getMessages(){
-    return this.http.get<IMessage>(`${this.apiUrl}/chat/${1}`);
+    return this.http.get<IMessage>(`${this.apiChat}/chat/${3}`);
   }
 
-  sendMessage(message: MessageModel): Observable<MessageModel> {
-    return this.http.post<MessageModel>(`${this.apiUrl}/messages`, message);
+  sendMessage(message: MessageModel): Observable<MessageReturn> {
+    console.log("im in the sendMessage for this message:",message)
+    return this.http.post<MessageReturn>(`${this.apiAssistant}/sendMessage/${this.idThread}`, message);
   }
+
 }

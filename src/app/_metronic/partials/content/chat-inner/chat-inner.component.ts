@@ -1,8 +1,8 @@
-import { Component, ElementRef, HostBinding, Input, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostBinding, Input, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ChatService } from 'services/chat.service';
 import { IMessage } from './message';
-
+import { MessageReturn } from './messageReturn.model';
 interface MessageModelRequest {
   user: number;
   text: string;
@@ -18,6 +18,20 @@ interface MessageModelResponse {
   template?: boolean;
 }
 
+interface Message {
+  message:string
+}
+
+interface MessageModel {
+  id: number;
+  response: string;
+  message: string;
+  user: number;
+  type: 'in' | 'out';
+  text: string;
+  time: string;
+  template?: boolean;
+}
 
 interface UserInfoModel {
   initials?: {
@@ -30,10 +44,12 @@ interface UserInfoModel {
   position: string;
   online: boolean;
 }
+  
 
 const defaultUserInfos: Array<UserInfoModel> = [
   // ... Your user info data
 ];
+returnInteraction: MessageReturn
 
 @Component({
   selector: 'app-chat-inner',
@@ -55,8 +71,8 @@ export class ChatInnerComponent implements OnInit {
   private messagesResponse$: BehaviorSubject<Array<MessageModelResponse>> = new BehaviorSubject<Array<MessageModelResponse>>([]);
   messagesObsResponse: Observable<Array<MessageModelResponse>> = this.messagesResponse$.asObservable();
 
-  constructor(private chatService: ChatService) {
-    this.fetchMessages(); 
+  constructor(private chatService: ChatService, private cdr: ChangeDetectorRef) {
+    this.fetchMessages();
   } // Inject the service
 
   ngOnInit(): void {
@@ -66,19 +82,38 @@ export class ChatInnerComponent implements OnInit {
   fetchMessages(){
     this.chatService.getMessages().subscribe((messages: IMessage) => {
       this.messages = messages;
+      this.cdr.detectChanges();
     });
   }
 
   submitMessage(): void {
     const text = this.messageInput.nativeElement.value;
-    const newMessage: MessageModelResponse= {
+    
+    const newMessageResponse: MessageModelResponse= {
       user: 2,
       // type: 'out',
       text,
       time: Date(),
     };
+
+    const newMessageRequest: MessageModel= {
+      id: 0,
+      response: '',
+      message: text,
+      user: Number(localStorage.getItem("idUser")),
+      type: 'in' ,
+      text: '',
+      time: '' ,
+      template: true
+    };
+    const sendedMessage:Message={
+      message:text
+    }
+
     
-    // this.addMessage();
+    console.log("the request that the component send ",newMessageRequest)
+    this.sendMessage(newMessageRequest);
+    console.log("what is sended to the server ")
     
     // auto answer
     setTimeout(() => {
@@ -90,6 +125,8 @@ export class ChatInnerComponent implements OnInit {
     }, 4000);
     // clear input
     this.messageInput.nativeElement.value = '';
+    this.fetchMessages();
+    this.cdr.detectChanges();
   }
 
   addMessage(newMessage: MessageModelRequest): void {
@@ -101,5 +138,21 @@ export class ChatInnerComponent implements OnInit {
   getUser(user: number): UserInfoModel {
     return defaultUserInfos[user];
   }
+  sendMessage(messagemodel:MessageModel) {
+    // Store the observable returned by the sendMessage method
+    const messageObservable = this.chatService.sendMessage(messagemodel);
 
+    // Subscribe to the observable to handle the response
+    messageObservable.subscribe(
+      response => {
+        // Handle the successful response
+        console.log('Message sent successfully:', response);
+        this.fetchMessages();
+      },
+      error => {
+        // Handle any errors
+        console.error('Error sending message:', error);
+      }
+    );
+  }
 }
