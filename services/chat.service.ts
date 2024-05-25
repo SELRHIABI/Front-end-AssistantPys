@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
 interface MessageModel {
+  id: number;
+  response: string;
+  message: string;
   user: number;
   type: 'in' | 'out';
   text: string;

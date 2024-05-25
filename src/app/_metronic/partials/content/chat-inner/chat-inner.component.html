@@ -17,7 +17,7 @@
   "
   [attr.data-kt-scroll-offset]="isDrawer ? '0px' : '-2px'"
 >
-  <ng-container *ngFor="let message of messagesObs | async">
+  <ng-container *ngFor="let message of messagesObsRequest | async">
     <div
       [ngClass]="{
         'd-flex': !isDrawer,
