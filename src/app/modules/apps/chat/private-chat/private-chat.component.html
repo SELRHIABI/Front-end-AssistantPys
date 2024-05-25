@@ -14,8 +14,7 @@
               <span class="symbol-label bg-light-danger text-danger fs-6 fw-bolder">{{item.id}}</span>
             </div>
             <div class="ms-5">
-              <a class="fs-5 fw-bolder text-gray-900 text-hover-primary mb-2 cursor-pointer">{{item.title}}</a>
-              <div class="fw-bold text-gray-400">{{item.threadId}}</div>
+              <a class="fs-5 fw-bolder text-gray-900 text-hover-primary mb-2 cursor-pointer" (click)="selectItem(item)">{{item.title}}</a>             
             </div>
           </div>
           <div class="d-flex flex-column align-items-end ms-2">

@@ -79,12 +79,16 @@ export class LoginComponent implements OnInit, OnDestroy {
           if (user) {
             console.log("Authenticated user:", user);
             const auth = new AuthModel();
+
+            //storing the tokens that we need to use 
             auth.authToken = user.token;
             console.log("Token in AuthModel:", auth.authToken);
-
             localStorage.setItem('authToken', auth.authToken);
+            console.log("authTokenStored :", auth.authToken)
             localStorage.setItem('refreshToken', auth.refreshToken);
-            localStorage.setItem('id',user.id.toString());
+            localStorage.setItem('idUser',user.id.toString());
+            console.log("the idUser stored :", user.id.toString())
+
             console.log("Tokens stored in localStorage:", localStorage);
 
             console.log("Tokens stored, navigating to returnUrl:", this.returnUrl);
