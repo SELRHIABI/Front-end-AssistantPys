@@ -1,19 +1,30 @@
-import {
-  Component,
-  ElementRef,
-  HostBinding,
-  Input,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, HostBinding, Input, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import {
-  defaultMessages,
-  defaultUserInfos,
-  messageFromClient,
-  MessageModel,
-  UserInfoModel,
-} from './dataExample';
+import { ChatService } from 'services/chat.service';
+
+interface MessageModel {
+  user: number;
+  type: 'in' | 'out';
+  text: string;
+  time: string;
+  template?: boolean;
+}
+
+interface UserInfoModel {
+  initials?: {
+    label: string;
+    state: 'warning' | 'danger' | 'primary' | 'success' | 'info';
+  };
+  name: string;
+  avatar?: string;
+  email: string;
+  position: string;
+  online: boolean;
+}
+
+const defaultUserInfos: Array<UserInfoModel> = [
+  // ... Your user info data
+];
 
 @Component({
   selector: 'app-chat-inner',
@@ -28,13 +39,29 @@ export class ChatInnerComponent implements OnInit {
   @ViewChild('messageInput', { static: true })
   messageInput: ElementRef<HTMLTextAreaElement>;
 
-  private messages$: BehaviorSubject<Array<MessageModel>> = new BehaviorSubject<
-    Array<MessageModel>
-  >(defaultMessages);
-  messagesObs: Observable<Array<MessageModel>>;
+  private messages$: BehaviorSubject<Array<MessageModel>> = new BehaviorSubject<Array<MessageModel>>([]);
+  messagesObs: Observable<Array<MessageModel>> = this.messages$.asObservable();
 
-  constructor() {
-    this.messagesObs = this.messages$.asObservable();
+  constructor(private chatService: ChatService) {} // Inject the service
+
+  ngOnInit(): void {
+    this.fetchMessages(''); // Assuming you pass the threadId here, update accordingly
+  }
+
+  fetchMessages(threadId: string): void {
+    this.chatService.getMessages().subscribe(messages => {
+      let newMessages: Array<MessageModel> = [];
+      messages.forEach(message => {
+        newMessages.push({
+          user: message.user,
+          type: message.type,
+          text: message.text,
+          time: message.time,
+        });
+      });
+    
+      this.messages$.next(newMessages);
+    });
   }
 
   submitMessage(): void {
@@ -43,12 +70,17 @@ export class ChatInnerComponent implements OnInit {
       user: 2,
       type: 'out',
       text,
-      time: 'Just now',
+      time: Date(),
     };
     this.addMessage(newMessage);
     // auto answer
     setTimeout(() => {
-      this.addMessage(messageFromClient);
+      this.addMessage({
+        user: 4,
+        type: 'in',
+        text: 'Thank you for your awesome support!',
+        time: Date(),
+      });
     }, 4000);
     // clear input
     this.messageInput.nativeElement.value = '';
@@ -69,6 +101,4 @@ export class ChatInnerComponent implements OnInit {
       message.type === 'in' ? 'info' : 'primary'
     } text-${message.type === 'in' ? 'start' : 'end'}`;
   }
-
-  ngOnInit(): void {}
 }
