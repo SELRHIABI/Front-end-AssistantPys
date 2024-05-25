@@ -138,7 +138,7 @@ export class ChatInnerComponent implements OnInit, OnDestroy {
 
 
       });
-    }, 4000);
+    }, 600000000);
 
     // Clear input
     this.messageInput.nativeElement.value = '';
