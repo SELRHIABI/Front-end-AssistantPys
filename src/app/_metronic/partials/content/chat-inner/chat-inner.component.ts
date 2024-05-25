@@ -1,10 +1,10 @@
 import { Component, ElementRef, HostBinding, Input, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ChatService } from 'services/chat.service';
+import { IMessage } from './message';
 
 interface MessageModelRequest {
   user: number;
-  type: 'in' ;
   text: string;
   time: string;
   template?: boolean;
@@ -12,17 +12,12 @@ interface MessageModelRequest {
 
 interface MessageModelResponse {
   user: number;
-  type: 'out';
+  // type: 'out';
   text: string;
   time: string;
   template?: boolean;
 }
 
-interface MessageDto {
-  id: number;
-  message: string;
-  response: string;
-}
 
 interface UserInfoModel {
   initials?: {
@@ -45,6 +40,7 @@ const defaultUserInfos: Array<UserInfoModel> = [
   templateUrl: './chat-inner.component.html',
 })
 export class ChatInnerComponent implements OnInit {
+  messages: any;
   @Input() isDrawer: boolean = false;
   @HostBinding('class') class = 'card-body';
   @HostBinding('id') id = this.isDrawer
@@ -59,40 +55,17 @@ export class ChatInnerComponent implements OnInit {
   private messagesResponse$: BehaviorSubject<Array<MessageModelResponse>> = new BehaviorSubject<Array<MessageModelResponse>>([]);
   messagesObsResponse: Observable<Array<MessageModelResponse>> = this.messagesResponse$.asObservable();
 
-  constructor(private chatService: ChatService) {} // Inject the service
+  constructor(private chatService: ChatService) {
+    this.fetchMessages(); 
+  } // Inject the service
 
   ngOnInit(): void {
     this.fetchMessages(); // Assuming you pass the threadId here, update accordingly
   }
 
-  fetchMessages(): void {
-    this.chatService.getMessages().subscribe((messages: MessageDto[]) => {
-      let newRequestMessages: Array<MessageModelRequest> = [];
-      let newResponseMessages: Array<MessageModelResponse> = [];
-
-      messages.forEach((message: MessageDto) => {
-        console.log(message);
-        if (message.message) {
-          newRequestMessages.push({
-            user: 1, // Assuming user '1' is the sender for incoming messages
-            type: 'in',
-            text: message.message,
-            time: 'Some timestamp', // Replace with actual timestamp or add a time field in MessageDto
-          });
-        }
-        if (message.response) {
-          console.log(message.response);  
-          newResponseMessages.push({
-            user: 2, // Assuming user '2' is the responder for outgoing messages
-            type: 'out',
-            text: message.response,
-            time: 'Some timestamp', // Replace with actual timestamp or add a time field in MessageDto
-          });
-        }
-      });
-
-      this.messagesRequest$.next(newRequestMessages);
-      this.messagesResponse$.next(newResponseMessages);
+  fetchMessages(){
+    this.chatService.getMessages().subscribe((messages: IMessage) => {
+      this.messages = messages;
     });
   }
 
@@ -100,18 +73,17 @@ export class ChatInnerComponent implements OnInit {
     const text = this.messageInput.nativeElement.value;
     const newMessage: MessageModelResponse= {
       user: 2,
-      type: 'out',
+      // type: 'out',
       text,
       time: Date(),
     };
-
+    
     // this.addMessage();
     
     // auto answer
     setTimeout(() => {
       this.addMessage({
         user: 4,
-        type: 'in',
         text: 'Thank you for your awesome support!',
         time: Date(),
       });
@@ -130,9 +102,4 @@ export class ChatInnerComponent implements OnInit {
     return defaultUserInfos[user];
   }
 
-  getMessageCssClass(message: MessageModelRequest): string {
-    return `p-5 rounded text-dark fw-bold mw-lg-400px bg-light-${
-      message.type === 'in' ? 'info' : 'primary'
-    } text-${message.type === 'in' ? 'start' : 'end'}`;
-  }
 }

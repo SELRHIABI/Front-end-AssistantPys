@@ -12,7 +12,7 @@ export class ThreadChatDataService {
 
   id: number = Number(localStorage.getItem('id'));
   // create a method that will get the data from the server
-  getData( ){
+  getData(){
     return this.http.get<IChatMessage>(`${this.baseUrl}/${this.id}`);
   }
 

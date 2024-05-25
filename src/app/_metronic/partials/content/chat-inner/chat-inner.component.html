@@ -17,74 +17,62 @@
   "
   [attr.data-kt-scroll-offset]="isDrawer ? '0px' : '-2px'"
 >
-  <ng-container *ngFor="let message of messagesObsRequest | async">
+  <ng-container *ngFor="let message of messages">
     <div
       [ngClass]="{
         'd-flex': !isDrawer,
         'd-none': message.template,
-        'justify-content-start': message.type === 'in',
-        'justify-content-end': message.type !== 'in'
+        'justify-content-start': true
       }"
-      [attr.data-kt-element]="'template-' + message.type"
+      [attr.data-kt-element]="'template-in'"
       class="mb-10"
     >
       <div
         class="d-flex flex-column align-items"
-        [ngClass]="'align-items-' + (message.type === 'in' ? 'start' : 'end')"
+        [ngClass]="'align-items-start'"
       >
         <div class="d-flex align-items-center mb-2">
-          <ng-container *ngIf="message.type === 'in'">
-            <div div class="symbol symbol-35px symbol-circle">
-              <img
-                alt="Pic"
-                [src]="'./assets/media/' + getUser(message.user).avatar"
-              />
-            </div>
-            <div class="ms-3">
-              <a
-                href="#"
-                class="fs-5 fw-bolder text-gray-900 text-hover-primary me-1"
-              >
-                {{ getUser(message.user).name }}
-              </a>
-              <span class="text-muted fs-7 mb-1">{{ message.time }}</span>
-            </div>
-          </ng-container>
-          <ng-container *ngIf="message.type !== 'in'">
-            <div class="me-3">
-              <span class="text-muted fs-7 mb-1">{{ message.time }}</span>
-              <a
-                href="#"
-                class="fs-5 fw-bolder text-gray-900 text-hover-primary ms-1"
-              >
-                You
-              </a>
-            </div>
-            <div class="symbol symbol-35px symbol-circle">
-              <img
-                alt="Pic"
-                [src]="'./assets/media/' + getUser(message.user).avatar"
-              />
+          <ng-container *ngIf="true">
+            <div div class="symbol symbol-35px symbol-circle"></div>
+            <div class="ms-3  p-5 rounded text-dark fw-bold mw-lg-400px bg-light-primary text-end">
+              {{ message.message}}
             </div>
           </ng-container>
         </div>
 
-        <div
-          [ngClass]="getMessageCssClass(message)"
-          data-kt-element="message-text"
-          [innerHTML]="message.text"
-        ></div>
+        <div data-kt-element="message-text" [innerHTML]="message.text"></div>
+      </div>
+    </div>
+
+    <div
+      [ngClass]="{
+        'd-flex': !isDrawer,
+        'd-none': message.template,
+        'justify-content-end': true
+      }"
+      [attr.data-kt-element]="'template-in'"
+      class="mb-10"
+    >
+      <div
+        class="d-flex flex-column align-items"
+        [ngClass]="'align-items-start'"
+      >
+        <div class="d-flex align-items-center mb-2">
+          <ng-container *ngIf="true">
+            <div div class="symbol symbol-35px symbol-circle"></div>
+            <div class="ms-3 p-5 rounded text-dark fw-bold mw-lg-400px bg-light-info text-start">
+              {{ message.response}}
+            </div>
+          </ng-container>
+        </div>
+
+        <div data-kt-element="message-text" [innerHTML]="message.text"></div>
       </div>
     </div>
   </ng-container>
 </div>
 
-<div
-  class="card-footer pt-4"
-  [id]="
-    isDrawer ? 'kt_drawer_chat_messenger_footer' : 'kt_chat_messenger_footer'
-  "
->
+<div class="card-footer pt-4">
   <textarea
     #messageInput
     class="form-control form-control-flush mb-3"

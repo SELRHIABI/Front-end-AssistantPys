@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { IMessage } from 'src/app/_metronic/partials/content/chat-inner/message';
 
 interface MessageModel {
   id: number;
@@ -30,19 +31,24 @@ export class ChatService {
 
   constructor(private http: HttpClient) {}
 
-  getMessages(): Observable<MessageModel[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/chat/${1}`).pipe(
-      map((response: any) => response.map((interaction: any) => ({
-        user: interaction.userId, // Adjust according to your API response
-        type: interaction.type, // Assuming you have 'type' in your response
-        text: interaction.message,
-        time: interaction.createdAt
-      }))),
-      tap((messages: MessageModel[]) => {
-        console.log(messages);
-      })
-    );
+  // getMessages(): Observable<MessageModel[]> {
+  //   return this.http.get<any[]>(`${this.apiUrl}/chat/${1}`).pipe(
+  //     map((response: any) => response.map((interaction: any) => ({
+  //       user: interaction.userId, // Adjust according to your API response
+  //       type: interaction.type, // Assuming you have 'type' in your response
+  //       text: interaction.message,
+  //       time: interaction.createdAt
+  //     }))),
+  //     tap((messages: MessageModel[]) => {
+  //       console.log(messages);
+  //     })
+  //   );
+  // }
+
+  getMessages(){
+    return this.http.get<IMessage>(`${this.apiUrl}/chat/${1}`);
   }
+
   sendMessage(message: MessageModel): Observable<MessageModel> {
     return this.http.post<MessageModel>(`${this.apiUrl}/messages`, message);
   }
